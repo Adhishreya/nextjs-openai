@@ -13,7 +13,6 @@ export async function POST(req: any) {
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: "prompt" }]
         });
-        console.log("chatting", chat)
         const message = chat?.choices[0]?.message?.content;
         return Response.json({ message })
     }

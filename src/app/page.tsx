@@ -1,23 +1,30 @@
-'use client'
+"use client";
 
 import Image from "next/image";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function HomePage() {
-  const [response, setResponse] = useState();
+  const [response, setResponse] = useState<any>();
   const [prompt, setPrompt] = useState();
 
   const submitResponse = async () => {
-    const res = await fetch("/api/groq", {
+    setResponse("");
+    const res: any = await fetch("/api/groq", {
       method: "POST",
       headers: { "Content-Type": "Application/json" },
-      body: JSON.stringify({prompt}),
+      body: JSON.stringify({ prompt }),
     });
 
-    const data = await res.json();
-    setResponse(data.message);
-  };
+    const reader = await res?.body?.getReader();
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader!.read();
 
+      if (done) break;
+      setResponse((prev: any) => prev + decoder.decode(value) || "");
+    }
+  };
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -30,7 +37,7 @@ export default function HomePage() {
           <>
             {" "}
             <div>Response</div>
-            {response}
+            <div> {response || ""}</div>
           </>
         )}
       </main>

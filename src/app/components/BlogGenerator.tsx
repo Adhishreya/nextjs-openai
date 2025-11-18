@@ -1,32 +1,56 @@
 "use client";
-import { useChat } from "ai/react";
+
+import { useCompletion } from "@ai-sdk/react";
 import ReactMarkdown from "react-markdown";
 
-const BlogGenerator = () => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({ api: "/api/generate-blog" });
+export default function BlogGenerator() {
+  const {
+    completion,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    error,
+    complete,
+  } = useCompletion({
+    api: "/api/generate-blog",
+    streamProtocol: "text",
+  });
 
-  console.log("messages", messages);
   return (
-    <div>
-      <h2>Blog Generator</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="p-4 space-y-4">
+      <h2 className="text-xl font-semibold">Blog Generator</h2>
+
+      <form onSubmit={handleSubmit} className="flex gap-2">
         <input
-          onChange={handleInputChange}
-          placeholder="enter your blog topic here"
           value={input}
+          onChange={handleInputChange}
+          placeholder="Enter your blog topic"
+          className="border p-2 rounded flex-1"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              complete(e.currentTarget.value);
+            }
+          }}
         />
-        <button>{isLoading ? "Generating..." : "Generate blog post"}</button>
+        <button
+          type="submit"
+          className="bg-black text-white px-4 py-2 rounded"
+          disabled={isLoading}
+        >
+          {isLoading ? "Generating..." : "Generate"}
+        </button>
       </form>
-      <div>
-        {messages ? (
-          <ReactMarkdown>{messages}</ReactMarkdown>
+
+      {error && <p className="text-red-500">{error.message}</p>}
+
+      <div className="prose">
+        {completion ? (
+          <ReactMarkdown>{completion}</ReactMarkdown>
         ) : (
-          <p>Your blog post will be generated here</p>
+          <p>Your blog post will appear here...</p>
         )}
       </div>
     </div>
   );
-};
-
-export default BlogGenerator;
+}

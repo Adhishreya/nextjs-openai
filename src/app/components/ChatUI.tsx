@@ -26,6 +26,8 @@ export default function ChatUI() {
       setResponse((prev: any) => prev + decoder.decode(value) || "");
     }
   };
+
+  console.log("response", response);
   return (
     <div>
       <div className="flex justify-between w-full gap-2">
@@ -39,7 +41,7 @@ export default function ChatUI() {
         </button>
       </div>
 
-      {response && (
+      {response && !response?.error && (
         <>
           {" "}
           {/* <div>Response</div> */}

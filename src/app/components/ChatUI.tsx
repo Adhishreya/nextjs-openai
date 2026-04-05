@@ -25,7 +25,6 @@ export default function ChatUI() {
     }
   };
 
-  console.log("response", response);
   return (
     <div>
       <div className="flex justify-between w-full gap-2">

@@ -4,7 +4,7 @@ import { generateText } from "ai";
 
 export async function POST(req: Request) {
     const { prompt } = await req.json();
-    const { text, sources, providerMetadata } = await generateText({
+    const { text } = await generateText({
         model: google("gemini-1.5-flash"),
         tools: {
             gogle_search: google.tools.googleSearch({}),
@@ -14,13 +14,6 @@ export async function POST(req: Request) {
         prompt
     });
 
-    console.log("sources", sources);
-
-    const metadata = providerMetadata?.google;
-    const groundingMetadata = metadata?.groundingMetadata;
-    const safetyRatings = metadata?.safetyRatings;
-
-    console.log("metadataDetails", groundingMetadata, safetyRatings)
     return new Response(text, {
         headers: { "Content-Type": "text/plain" }
     });

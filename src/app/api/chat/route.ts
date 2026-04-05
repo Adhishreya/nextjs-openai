@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         return Response.json({ message })
     }
     catch (e: unknown) {
-        console.log("erroring", e)
+        console.error("erroring", e)
         return new Response(JSON.stringify({ error: "Something went wrong" }), { status: 500 })
     }
 } 

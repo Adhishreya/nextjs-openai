@@ -5,7 +5,6 @@ import { Anthropic } from '@anthropic-ai/sdk';
 export async function POST(req: Request) {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const { prompt } = await req.json();
-    console.log("response object", prompt)
 
     if (!prompt) {
         return new Response(JSON.stringify({ error: "Prompt required" }), { status: 400 })
@@ -17,7 +16,7 @@ export async function POST(req: Request) {
         const message = (content.type === 'text' ? content.text : "No response");
         return Response.json({ message });
     } catch (err: unknown) {
-        console.log("erroring", err)
+        console.error("erroring", err)
         return new Response(JSON.stringify({ error: "Something went wrong" }), { status: 500 })
 
     }

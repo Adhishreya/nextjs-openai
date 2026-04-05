@@ -6,21 +6,17 @@ import { streamText } from "ai";
 export const runtime = "edge";
 
 
-const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN
-});
-
-
-
-const ratelimit = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(5, "1 m"),
-    analytics: true,
-});
-
-
 export async function POST(req: Request) {
+    const redis = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN
+    });
+
+    const ratelimit = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(5, "1 m"),
+        analytics: true,
+    });
     const { prompt } = await req.json();
 
     const ip = req.headers.get('x-forwarded-for') ?? "global";
@@ -32,22 +28,22 @@ export async function POST(req: Request) {
         return new Response(JSON.stringify({
             error: "Rate limit exceeded Try again later",
             reset,
-        })),
+        }),
         {
             status: 429,
-            headers: { ContentType: "applcation/json" }
-        }
+            headers: { "Content-Type": "application/json" }
+        })
     }
 
     const cached = await redis.get<string>(key);
     if (cached) {
         return new Response(cached, {
-            headers: { ContentType: "text/plain" }
+            headers: { "Content-Type": "text/plain" }
         })
     }
 
     const result = await streamText({
-        model: google("gemini-2.5-flash"),
+        model: google("gemini-1.5-flash"),
         prompt: `Generate a detailed and engaging blog post based on this topic: ${prompt}. The output should be markdown with a title.`,
     });
 

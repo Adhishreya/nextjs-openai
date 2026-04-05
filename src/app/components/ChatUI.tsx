@@ -1,29 +1,27 @@
 "use client";
 
 import { SendHorizontal } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
-import ReactMarkdown from "react-markdown";
+import { useState, ChangeEvent } from "react";
 
 export default function ChatUI() {
-  const [response, setResponse] = useState<any>();
-  const [prompt, setPrompt] = useState();
+  const [response, setResponse] = useState<string>("");
+  const [prompt, setPrompt] = useState<string>("");
 
   const submitResponse = async () => {
     setResponse("");
-    const res: any = await fetch("/api/groq", {
+    const res = await fetch("/api/groq", {
       method: "POST",
-      headers: { "Content-Type": "Application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt }),
     });
 
-    const reader = await res?.body?.getReader();
+    const reader = res.body?.getReader();
     const decoder = new TextDecoder();
     while (true) {
       const { done, value } = await reader!.read();
 
       if (done) break;
-      setResponse((prev: any) => prev + decoder.decode(value) || "");
+      setResponse((prev) => prev + decoder.decode(value) || "");
     }
   };
 
@@ -33,7 +31,7 @@ export default function ChatUI() {
       <div className="flex justify-between w-full gap-2">
         <textarea
           placeholder="enter your question"
-          onChange={(e: any) => setPrompt(e?.target?.value)}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
           className="resize-none w-full p-3"
         />
         <button onClick={submitResponse}>
@@ -41,13 +39,13 @@ export default function ChatUI() {
         </button>
       </div>
 
-      {response && !response?.error && (
+      {response && (
         <>
           {" "}
           {/* <div>Response</div> */}
           <div className="outline p-3 rounded-md shadow-xl">
             {" "}
-            {response || ""}
+            {response}
           </div>
         </>
       )}

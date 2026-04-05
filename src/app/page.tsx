@@ -1,20 +1,16 @@
 "use client";
 
-type ComponentKey = "search" | "blog";
+type ComponentKey = "search" | "blog" | "chat";
 
-import { SendHorizontal } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 import ChatUI from "./components/ChatUI";
 import BlogGenerator from "./components/BlogGenerator";
 import Search from "./components/Search";
 
 export default function HomePage() {
-  const [response, setResponse] = useState<any>();
   const [typeValue, setTypeValue] = useState<ComponentKey | null>(null);
 
-  const componentToRender = {
+  const componentToRender: Record<ComponentKey, React.ComponentType> = {
     search: Search,
     blog: BlogGenerator,
     chat: ChatUI,
@@ -32,13 +28,14 @@ export default function HomePage() {
         {/* <ChatUI /> */}
         <div className="flex flex-col gap-4 w-full">
           <div className="flex gap-2">
-            {userOptions?.map((option: any) => {
+            {userOptions?.map((option) => {
               return (
                 <button
+                  key={option.value}
                   className="bg-black text-white px-4 py-2 rounded"
-                  onClick={() => setTypeValue(option?.value)}
+                  onClick={() => setTypeValue(option.value as ComponentKey)}
                 >
-                  {option?.text}
+                  {option.text}
                 </button>
               );
             })}

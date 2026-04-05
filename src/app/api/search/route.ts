@@ -2,10 +2,10 @@ import { google } from "@ai-sdk/google";
 import { extractTool, searchTool } from "@parallel-web/ai-sdk-tools";
 import { generateText } from "ai";
 
-export async function POST(req: any) {
+export async function POST(req: Request) {
     const { prompt } = await req.json();
     const { text, sources, providerMetadata } = await generateText({
-        model: google("gemini-2.5-flash"),
+        model: google("gemini-1.5-flash"),
         tools: {
             gogle_search: google.tools.googleSearch({}),
             webSearch: searchTool,

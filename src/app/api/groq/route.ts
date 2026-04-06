@@ -1,7 +1,10 @@
 import { OpenAI } from "openai";
 
 export async function POST(req: Request) {
-    const groq = new OpenAI({ apiKey: process.env.GROQ_API_KEY!, baseURL: 'https://api.groq.com/openai/v1' });
+    if (!process.env.GROQ_API_KEY) {
+        return new Response(JSON.stringify({ error: "GROQ_API_KEY is not configured" }), { status: 500 });
+    }
+    const groq = new OpenAI({ apiKey: process.env.GROQ_API_KEY, baseURL: 'https://api.groq.com/openai/v1' });
 
     const { prompt, model } = await req.json();
     if (!prompt) {

@@ -7,6 +7,12 @@ export const runtime = "edge";
 
 
 export async function POST(req: Request) {
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+        return new Response(JSON.stringify({ error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured" }), { status: 500 });
+    }
+    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+        return new Response(JSON.stringify({ error: "Upstash Redis environment variables are not configured" }), { status: 500 });
+    }
     const redis = new Redis({
         url: process.env.UPSTASH_REDIS_REST_URL,
         token: process.env.UPSTASH_REDIS_REST_TOKEN
@@ -55,7 +61,7 @@ export async function POST(req: Request) {
     await redis.set(key, final, { ex: 60 * 60 * 24 });
 
     return new Response(final, {
-        headers: { ContentType: "text/plain" }
+        headers: { "Content-Type": "text/plain" }
     })
     // return result.toTextStreamResponse();
 };

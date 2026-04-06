@@ -3,6 +3,9 @@ import { Anthropic } from '@anthropic-ai/sdk';
 
 
 export async function POST(req: Request) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+        return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured" }), { status: 500 });
+    }
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const { prompt } = await req.json();
 

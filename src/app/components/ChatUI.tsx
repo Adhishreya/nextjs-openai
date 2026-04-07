@@ -15,6 +15,12 @@ export default function ChatUI() {
       body: JSON.stringify({ prompt }),
     });
 
+    if (!res.ok) {
+      const errorData = await res.json();
+      setResponse(`Error: ${errorData.error || "Something went wrong"}`);
+      return;
+    }
+
     const reader = res.body?.getReader();
     const decoder = new TextDecoder();
     while (true) {

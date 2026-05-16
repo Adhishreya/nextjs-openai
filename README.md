@@ -71,8 +71,36 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Deploy on Vercel
+## Deployment
+
+### Docker (Recommended)
+
+The application is optimized for containerized deployment using Docker.
+
+1. **Build the Docker image**:
+   ```bash
+   docker build -t nextjs-multi-ai-assistant .
+   ```
+
+2. **Run the container**:
+   ```bash
+   docker run -p 3000:3000 \
+     -e OPENAI_API_KEY=your_key \
+     -e ANTHROPIC_API_KEY=your_key \
+     -e GROQ_API_KEY=your_key \
+     -e GOOGLE_GENERATIVE_AI_API_KEY=your_key \
+     -e UPSTASH_REDIS_REST_URL=your_url \
+     -e UPSTASH_REDIS_REST_TOKEN=your_token \
+     nextjs-multi-ai-assistant
+   ```
+
+### Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+1. Push your code to a GitHub/GitLab/Bitbucket repository.
+2. Import the project into Vercel.
+3. Configure the environment variables in the Vercel dashboard.
+4. Deploy!
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

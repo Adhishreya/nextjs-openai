@@ -22,7 +22,7 @@ This is a comprehensive Next.js application demonstrating integrations with vari
 ### Prerequisites
 
 - Node.js 18+
-- npm, yarn, pnpm, or bun
+- npm (Use `--legacy-peer-deps` during install due to React 19 / AI SDK peer conflicts)
 
 ### Installation
 
@@ -34,7 +34,7 @@ This is a comprehensive Next.js application demonstrating integrations with vari
 
 2. Install dependencies:
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 
 ### Configuration
@@ -57,6 +57,50 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Deployment
+
+### Docker (Recommended)
+
+The easiest way to deploy is using Docker. A `Dockerfile` is provided for a production-ready, standalone build.
+
+1. Build the image:
+   ```bash
+   docker build -t nextjs-multi-ai-assistant .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 3000:3000 \
+     -e OPENAI_API_KEY=... \
+     -e ANTHROPIC_API_KEY=... \
+     -e GROQ_API_KEY=... \
+     -e GOOGLE_GENERATIVE_AI_API_KEY=... \
+     -e UPSTASH_REDIS_REST_URL=... \
+     -e UPSTASH_REDIS_REST_TOKEN=... \
+     nextjs-multi-ai-assistant
+   ```
+
+### Manual Production Build
+
+To run the production build manually:
+
+1. Build the application:
+   ```bash
+   npm run build
+   ```
+
+2. Prepare the standalone output:
+   ```bash
+   cp -r public .next/standalone/public
+   cp -r .next/static .next/standalone/.next/static
+   ```
+
+3. Start the server:
+   ```bash
+   cd .next/standalone
+   node server.js
+   ```
 
 ## Project Structure
 

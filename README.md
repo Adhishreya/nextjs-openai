@@ -76,3 +76,39 @@ To learn more about Next.js, take a look at the following resources:
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Docker Deployment
+
+To run the application using Docker:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t nextjs-multi-ai-assistant .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 3000:3000 \
+     -e OPENAI_API_KEY=your_openai_api_key \
+     -e ANTHROPIC_API_KEY=your_anthropic_api_key \
+     -e GROQ_API_KEY=your_groq_api_key \
+     -e GOOGLE_GENERATIVE_AI_API_KEY=your_google_gemini_api_key \
+     -e UPSTASH_REDIS_REST_URL=your_upstash_redis_url \
+     -e UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token \
+     nextjs-multi-ai-assistant
+   ```
+
+## Production Standalone Manual Execution
+
+If you want to run the standalone build manually (after `npm run build` with `output: 'standalone'`):
+
+1. Copy `public` and `.next/static` to the standalone folder:
+   ```bash
+   cp -r public .next/standalone/
+   cp -r .next/static .next/standalone/.next/
+   ```
+
+2. Start the server:
+   ```bash
+   PORT=3000 node .next/standalone/server.js
+   ```

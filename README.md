@@ -76,3 +76,23 @@ To learn more about Next.js, take a look at the following resources:
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Production Deployment (Standalone)
+
+This project is configured to use Next.js [Standalone Output](https://nextjs.org/docs/app/api-reference/next-config-js/output#standalone), which is ideal for Docker or VPS deployments.
+
+1. **Build the application**:
+   ```bash
+   npm run build
+   ```
+
+2. **Prepare the standalone directory**:
+   ```bash
+   cp -r public .next/standalone/
+   cp -r .next/static .next/standalone/.next/
+   ```
+
+3. **Start the production server**:
+   ```bash
+   PORT=3000 node .next/standalone/server.js
+   ```

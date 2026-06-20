@@ -1,11 +1,12 @@
 "use client";
 
-type ComponentKey = "search" | "blog" | "chat";
+type ComponentKey = "search" | "blog" | "chat" | "migrate";
 
 import { useState } from "react";
 import ChatUI from "./components/ChatUI";
 import BlogGenerator from "./components/BlogGenerator";
 import Search from "./components/Search";
+import Migrate from "./components/Migrate";
 
 export default function HomePage() {
   const [typeValue, setTypeValue] = useState<ComponentKey | null>(null);
@@ -14,11 +15,13 @@ export default function HomePage() {
     search: Search,
     blog: BlogGenerator,
     chat: ChatUI,
+    migrate: Migrate,
   };
   const userOptions = [
     { text: "Blog Generator", value: "blog" },
     { text: "Search ", value: "search" },
     { text: "Chat ", value: "chat" },
+    { text: "Migrate Code ", value: "migrate" },
   ];
 
   const Component = typeValue ? componentToRender?.[typeValue ?? ""] : null;

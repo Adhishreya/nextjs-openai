@@ -12,6 +12,13 @@ interface RepoStats {
   configFiles: number;
 }
 
+interface Metrics {
+  averageComponentSize: number;
+  numberOfUseEffects: number;
+  maxComponentSize: number;
+  contextProviders: number;
+}
+
 const fileKeys = {
   totalFiles: "Total Files",
   components: "Components",
@@ -19,6 +26,10 @@ const fileKeys = {
   apiRoutes: "API Routes",
   tests: "Tests",
   configFiles: "Config Files",
+  averageComponentSize: "Avg Component Size",
+  numberOfUseEffects: "Number of UseEffects",
+  maxComponentSize: "Max Component Size",
+  contextProviders: "Context Providers",
 };
 
 export async function POST(req: Request) {
@@ -58,6 +69,15 @@ export async function POST(req: Request) {
       configFiles: 0,
     };
 
+    const metrics: Metrics = {
+      averageComponentSize: 0,
+      numberOfUseEffects: 0,
+      maxComponentSize: 0,
+      contextProviders: 0,
+    };
+
+    let totalComponentLines = 0;
+
     sourceFiles.forEach((sourceFile) => {
       const filePath = sourceFile.getFilePath().toLowerCase();
 
@@ -90,6 +110,15 @@ export async function POST(req: Request) {
         stats.apiRoutes++;
         // We don't return here, in case they oddly put components in their API folder!
       }
+
+      const callExpressions = sourceFile.getDescendantsOfKind(
+        SyntaxKind.CallExpression
+      );
+      callExpressions.forEach((call) => {
+        if (call.getExpression().getText() === "useEffect") {
+          metrics.numberOfUseEffects++;
+        }
+      });
 
       // ==========================================
       // 2. AST STRUCTURAL MATCHING (Components & Hooks)
@@ -132,6 +161,17 @@ export async function POST(req: Request) {
 
         if (returnsJSX && isPascalCase) {
           stats.components++;
+          // Calculate Component Size in lines
+          const startLine = func.getStartLineNumber();
+          const endLine = func.getEndLineNumber();
+          const componentLines = endLine - startLine + 1;
+
+          totalComponentLines += componentLines;
+
+          // Track Max Component Size
+          if (componentLines > metrics.maxComponentSize) {
+            metrics.maxComponentSize = componentLines;
+          }
         }
 
         // --- Hook Check ---
@@ -147,19 +187,31 @@ export async function POST(req: Request) {
       });
     });
 
-    // fileKeys
+    metrics.averageComponentSize =
+      stats.components > 0
+        ? Math.round(totalComponentLines / stats.components)
+        : 0;
 
     const displayStats: Record<string, Record<string, number>> = {};
+    const displayMetrics: Record<string, Record<string, number>> = {};
 
     Object.entries(stats).forEach(([key, value]) => {
-      displayStats[key] = { [fileKeys[key as keyof RepoStats]]: value };
+      if (value > 0)
+        displayStats[key] = { [fileKeys[key as keyof RepoStats]]: value };
+    });
+    Object.entries(metrics).forEach(([key, value]) => {
+      if (value > 0)
+        displayMetrics[key] = { [fileKeys[key as keyof RepoStats]]: value };
     });
 
     // 4. Return success AFTER the clone completes
-    return new Response(JSON.stringify({ stats: displayStats }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ stats: displayStats, metrics: displayMetrics }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (err) {
     // 5. Catch any errors during the await and properly return a 500 status
     console.error("Error cloning repository:", err);

@@ -5,18 +5,67 @@ import { useState } from "react";
 import CountUp from "react-countup";
 
 // 1. Define the TypeScript interface matching your backend stats shape
-interface RepoStats {
-  totalFiles: Record<string, number>;
-  components: Record<string, number>;
-  hooks: Record<string, number>;
-  apiRoutes: Record<string, number>;
-  tests: Record<string, number>;
-  configFiles: Record<string, number>;
+// interface RepoStats {
+//   totalFiles: Record<string, Record<string, number>>;
+//   components: Record<string, Record<string, number>>;
+//   hooks: Record<string, Record<string, number>>;
+//   apiRoutes: Record<string, Record<string, number>>;
+//   tests: Record<string, Record<string, number>>;
+//   configFiles: Record<string, Record<string, number>>;
+// }
+
+// interface MetricsStats {
+//   averageComponentSize: Record<string, Record<string, number>>;
+//   numberOfUseEffects: Record<string, Record<string, number>>;
+//   maxComponentSize: Record<string, Record<string, number>>;
+//   contextProviders: Record<string, Record<string, number>>;
+// }
+
+interface RenderGridProps {
+  cardsObject: Record<string, Record<string, number>> | null;
+  heading: string;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const RenderGrid = ({ cardsObject, heading }: RenderGridProps) => {
+  if (!cardsObject) return null;
+  return (
+    <>
+      {cardsObject && (
+        <h3 className="font-bold text-lg border-b pb-4">{heading}</h3>
+      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8 text-sm pt-4">
+        {Object.entries(cardsObject)?.map(([key, value]) => {
+          return (
+            <div
+              key={key}
+              className="border p-6 rounded-md shadow-md bg-white flex flex-col gap-2"
+            >
+              <div className="font-bold ">{Object?.keys(value)?.[0] || 0}</div>
+              <CountUp
+                className=" text-6xl !text-right"
+                end={(Object?.values(value)?.[0] as number) || 0}
+                duration={2.0} // Time in seconds for animation to complete
+                separator="," // Adds comma for thousands (e.g., 1,250)
+              />
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+};
 
 export default function Migrate() {
   // 2. Track traditional loading, error, and stats state manually
-  const [stats, setStats] = useState<RepoStats | null>(null);
+  const [stats, setStats] = useState<Record<
+    string,
+    Record<string, number>
+  > | null>(null);
+  const [metrics, setMetrics] = useState<Record<
+    string,
+    Record<string, number>
+  > | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +77,7 @@ export default function Migrate() {
     setIsLoading(true);
     setError(null);
     setStats(null);
+    setMetrics(null);
 
     try {
       // 3. Make a standard HTTP POST request to your API route
@@ -44,7 +94,8 @@ export default function Migrate() {
       }
 
       // 4. Store the returned stats in your React state
-      setStats(data.stats);
+      setStats(data?.stats);
+      setMetrics(data?.metrics);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
@@ -54,7 +105,7 @@ export default function Migrate() {
   };
 
   return (
-    <div className="space-y-4 max-full w-full mx-auto p-4">
+    <div className="gap-4 flex flex-col max-full w-full mx-auto p-4">
       <form onSubmit={onSubmit} className="flex justify-between w-full gap-2">
         <input
           value={input}
@@ -77,65 +128,15 @@ export default function Migrate() {
           <strong>Error:</strong> {error}
         </div>
       )}
-      {stats && (
-        <h3 className="font-bold text-lg border-b pb-1">
-          Repository Audit Results
-        </h3>
-      )}
+
       {/* 6. Render the calculated stats cleanly once they arrive */}
       {stats && !isLoading && !error && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-          {Object.entries(stats)?.map(([key, value]) => {
-            return (
-              <div
-                key={key}
-                className="border p-4 rounded-md shadow-md bg-white flex flex-col gap-2"
-              >
-                <div className="font-bold ">
-                  {Object?.keys(value)?.[0] || 0}
-                </div>
-                <CountUp
-                  className=" text-6xl"
-                  end={(Object?.values(value)?.[0] as number) || 0}
-                  duration={2.0} // Time in seconds for animation to complete
-                  separator="," // Adds comma for thousands (e.g., 1,250)
-                />
-              </div>
-            );
-          })}
-        </div>
+        <RenderGrid cardsObject={stats} heading=" Repository Audit Results" />
       )}
-      {/* {stats && (
-        <div className="border p-4 rounded-md shadow-md space-y-2 bg-white">
-          <h3 className="font-bold text-lg border-b pb-1">
-            Repository Audit Results
-          </h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>Total Files:</div>
-            <div className="font-mono font-bold">{stats.totalFiles}</div>
-            <div>React Components:</div>
-            <div className="font-mono font-bold text-blue-600">
-              {stats.components}
-            </div>
-            <div>Custom Hooks:</div>
-            <div className="font-mono font-bold text-purple-600">
-              {stats.hooks}
-            </div>
-            <div>API Routes:</div>
-            <div className="font-mono font-bold text-green-600">
-              {stats.apiRoutes}
-            </div>
-            <div>Test Files:</div>
-            <div className="font-mono font-bold text-orange-600">
-              {stats.tests}
-            </div>
-            <div>Config Files:</div>
-            <div className="font-mono font-bold text-gray-600">
-              {stats.configFiles}
-            </div>
-          </div>
-        </div>
-      )} */}
+
+      {metrics && !isLoading && !error && (
+        <RenderGrid cardsObject={metrics} heading="Metrics" />
+      )}
     </div>
   );
 }
